@@ -1,6 +1,5 @@
 
 import argparse
-import flwr as fl
 import torch
 from dataset import get_mnist
 from model import Net, train, test
@@ -30,17 +29,17 @@ optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
 
 privacy_engine = PrivacyEngine()
 model, optimizer, data_loader = privacy_engine.make_private(
-    module=model,
-    optimizer=optimizer,
-    data_loader=trainloaders[int(client_id)],
-    noise_multiplier=1.1,
-    max_grad_norm=1.0,
+  module=model,
+  optimizer=optimizer,
+  data_loader=trainloaders[int(client_id)],
+  noise_multiplier=1.1,
+  max_grad_norm=1.0,
 )
 
 # Initiate client
 client = fl_client(
   model=model,
-  epochs=10,
+  epochs=15,
   optimizer=optimizer,
   trainloader=data_loader,
   valloader=valloaders[int(client_id)],

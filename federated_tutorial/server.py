@@ -8,7 +8,7 @@ import pickle
 @hydra.main(config_path=None, config_name=None)
 
 def main(cfg):
-  history = start_server(num_rounds=2, host_addr='localhost:5000')
+  history = start_server(num_rounds=4, host_addr='localhost:5050')
   
   #6. Save results
   save_path = HydraConfig.get().runtime.output_dir
