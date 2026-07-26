@@ -1,8 +1,24 @@
-# Federated Learning + Differential Privacy 🔒🤝
+# Secure Federated Learning with Differential Privacy 🔒🤝
 
-A hands-on tutorial for training a PyTorch model **without centralizing anyone's data**. Multiple simulated clients each train locally on their own slice of MNIST, share only model updates with a central server, and those updates are protected with differential privacy before they ever leave the client.
+A hands-on implementation of training a PyTorch model **without centralizing anyone's data**. Multiple simulated clients each train locally on their own slice of MNIST, share only model updates with a central server, and those updates are protected with differential privacy before they ever leave the client.
 
 If you've never touched federated learning before, this repo is small enough to read end-to-end in one sitting — every piece maps to a single, short file.
+
+> This project was built as the CIS\*6560 Cybersecurity summer project (2024) by **Ripunjoy Madhab Buddha** under Prof. Rozita Dara. The full write-up — motivation, methodology, and results — is in [`Summer project 2024 Final report .pdf`](./Summer%20project%202024%20Final%20report%20.pdf).
+
+## Background & objective
+
+Traditional centralized machine learning pools everyone's data into one place before training. That single store becomes a prime target for breaches and makes compliance with regulations like **GDPR** and **HIPAA** costly and complex.
+
+The objective of this project is to develop and demonstrate a **secure federated learning framework that uses differential privacy (DP)** so multiple decentralized clients can jointly train one global model *without ever sharing their raw data* — preserving the privacy and confidentiality of sensitive information while still benefiting from the collective dataset.
+
+### What it defends against
+
+Combining federated learning (data never moves) with differential privacy (noise obscures any single record) hardens the model against several privacy attacks:
+
+- **Membership inference** — determining whether a specific individual's data was in the training set. DP obscures each point's contribution to the model.
+- **Model inversion** — reconstructing sensitive inputs from a trained model's outputs or parameters. DP noise plus decentralized data make reconstruction impractical.
+- **Linkage attacks** — cross-referencing datasets to re-identify individuals. Keeping raw data on-device removes the datasets an attacker would need to correlate.
 
 ## Why this exists
 
@@ -111,6 +127,19 @@ federated_tutorial/
 > **Note:** there's a second copy of `lib/` at the repo root, identical to `federated_tutorial/lib/`. The runnable code lives under `federated_tutorial/` — treat the root copy as legacy/reference until it's cleaned up.
 
 Hydra also expects a `conf/` directory for `server.py`'s configuration (it's git-ignored, and `server.py` currently runs with an empty config, so this is a good place to start if you want to make rounds/strategy configurable from the CLI instead of hardcoded).
+
+## Reported results
+
+The report evaluated a run with **10 clients over 4 rounds** on MNIST (10 classes, batch size 32, `lr=0.1`, `momentum=0.9`, 100 local epochs per client per round). Every client had to be online for both the fit and evaluate phases of each round.
+
+| Round | Loss | Accuracy |
+|---|---|---|
+| 1 | 43.68 | 4.77% |
+| 2 | — | 8.32% |
+| 3 | — | 8.70% |
+| 4 | 39.62 | 11.65% |
+
+Loss fell steadily and accuracy rose across rounds, confirming the federated + DP loop trains correctly. Absolute accuracy stays modest — the differential-privacy noise, aggressive privacy settings, and limited compute all trade utility for privacy, so more rounds and tuning are needed for higher performance. The two biggest practical hurdles were **hardware/GPU limits** (FL is compute-hungry across many clients) and **sparse library documentation** (notably PySyft), which drove a lot of experimentation.
 
 ## Extending this
 
